@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block main %}
+    <h2 style="text-align: center; margin-bottom: 20px;">Добро пожаловать, {{ session.get('login', 'Пользователь') }}!</h2>
+    <div class="block-container" style="display: flex; justify-content: center; align-items: center; gap: 20px; flex-wrap: wrap;">
+        <a href="{{ url_for('rooms.lab') }}" class="block" style="padding: 10px 20px; border-radius: 8px; text-decoration: none;  font-weight: bold; transition: transform 0.3s, background-color 0.3s;">
+            Комната хранения
+        </a>
+        {% if session.get('login') %}
+            <a href="{{ url_for('registr.logout') }}" class="block" style="padding: 10px 20px;  border-radius: 8px; text-decoration: none;  font-weight: bold; transition: transform 0.3s, background-color 0.3s;">
+                Выход
+            </a>
+            
+        {% else %}
+            <a href="{{ url_for('registr.login') }}" class="block" style="padding: 10px 20px;  border-radius: 8px; text-decoration: none;  font-weight: bold; transition: transform 0.3s, background-color 0.3s;">
+                Вход
+            </a>
+            <a href="{{ url_for('registr.register') }}" class="block" style="padding: 10px 20px;  border-radius: 8px; text-decoration: none;  font-weight: bold; transition: transform 0.3s, background-color 0.3s;">
+                Регистрация
+            </a>
+        {% endif %}
+    </div>
+
+    <style>
+        /* Анимация кнопок */
+        .block:hover {
+            transform: scale(1.1); /* Увеличение при наведении */
+            background-color: #ddd; /* Изменение фона */
+        }
+        .block-container {
+            margin-top: 30px;
+        }
+    </style>
+{% endblock %}

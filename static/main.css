@@ -1,0 +1,231 @@
+/* Основные стили для страницы */
+body {
+    margin: 0;
+    font-family: 'Trebuchet MS', sans-serif;
+    background-color: #f8f9fa;
+    color: #343a40;
+    padding-bottom: 60px;
+}
+
+main {
+    margin-bottom: 60px;
+    padding: 10px;
+    margin: 20px;
+}
+
+header {
+    padding: 10px;
+    background: #1f2833;
+    color: #0dd1b7;
+}
+
+footer {
+    margin-top: 20px;
+    padding: 10px;
+    background: #1f2833;
+    color: #c5c6c7;
+    text-align: right;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+/* Стили для ссылок */
+a:link {
+    color: #66fcf1;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #45a29e;
+    text-decoration: none;
+}
+
+a:active {
+    color: #66fcf1;
+    text-decoration: none;
+}
+
+a:visited {
+    color: #c5c6c7;
+    text-decoration: none;
+}
+
+/* Формы и кнопки */
+.formа {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+}
+
+label {
+    margin-bottom: 5px;
+}
+
+input {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+#register-form, #login-form {
+    max-width: 300px;
+}
+
+button {
+    margin: 5px;
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #1f2833;
+    color: #66fcf1;
+    border: 1px solid #66fcf1;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    background-color: #66fcf1;
+    color: #1f2833;
+    transform: scale(1.05);
+}
+
+/* Центрирование элементов */
+.center-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+/* Стили для ошибок */
+.error {
+    color: red;
+    font-weight: bold;
+}
+
+/* Стили для блоков */
+.block {
+    display: inline-block;
+    padding: 15px;
+    margin: 5px;
+    background-color: #1f2833;
+    border-radius: 5px;
+    text-align: center;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+a.block {
+    color: white;
+    text-decoration: none; 
+}
+
+/* Изменение цвета при наведении */
+.block:hover {
+    background-color: #66fcf1; 
+    color: #1f2833;
+    transform: scale(1.05);
+}
+
+/* Контейнер блоков */
+.block-container {
+    padding: 30px;
+    text-align: center;
+}
+
+/* Стили для кнопки в контейнере */
+.button-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px; /* Промежуток между кнопками */
+}
+
+/* Анимация для карточек */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.room {
+    animation: fadeIn 0.5s ease;
+}
+
+/* Стили для сетки комнат */
+#room-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center; /* Центровка по горизонтали */
+    align-items: center; /* Центровка по вертикали */
+    min-height: 100vh; /* Устанавливаем минимальную высоту для вертикальной центровки */
+    margin: 0;
+}
+
+/* Сводная информация о комнатах */
+#room-summary {
+    margin-bottom: 15px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #1f2833;
+}
+
+/* Стили для карточки комнаты */
+.room {
+    width: 140px;
+    height: 140px;
+    border: 2px solid #c5c6c7;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: white;
+    text-align: center;
+    transition: background-color 0.3s, color 0.3s, transform 0.3s;
+}
+
+/* Стили для занятых комнат */
+.room.occupied {
+    background-color: #1f2833;
+    color: #66fcf1;
+}
+
+.room:hover {
+    background-color: #45a29e;
+    color: white;
+    transform: scale(1.05);
+}
+
+/* Стили для текста внутри карточки */
+.room-number {
+    font-weight: bold;
+    font-size: 16px;
+}
+.room-status {
+    font-size: 14px;
+    color: #45a29e;
+}
+
+/* Анимация для успешной регистрации */
+@keyframes slideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+.success-message {
+    animation: slideIn 0.5s ease;
+}

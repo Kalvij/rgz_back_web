@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block styles %}
+
+{% endblock %}
+
+{% block main %}
+    <div class="center-content">
+        <h1>Добро пожаловать!</h1>
+        <p>Создайте аккаунт, чтобы начать пользоваться нашими услугами.</p>
+        
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+        
+        <form action="/registration/register" method="post" id="register-form">
+            <div class="formа">
+                <label for="login">Ваш будущий логин:</label>
+                <input type="text" name="login" id="login" >
+            </div>
+            <div class="formа">
+                <label for="password">Придумайте надежный пароль:</label>
+                <input type="password" name="password" id="password"  >
+            </div>
+            <div class="button-container" style="text-align: center; margin-top: 15px;">
+                <button type="submit" style="padding: 10px 20px; background-color: #4A90E2; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; transition: background-color 0.3s;">Создать аккаунт</button>
+            </div>
+        </form>
+    </div>
+    <style>
+        .center-content h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        .center-content p {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        .formа label {
+            font-weight: bold;
+            color: #333;
+        }
+        .formа input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .formа input:focus {
+            border-color: #4A90E2;
+            outline: none;
+            box-shadow: 0 0 5px rgba(74, 144, 226, 0.5);
+        }
+        .button-container button:hover {
+            background-color: #357ABD;
+        }
+    </style>
+{% endblock %}

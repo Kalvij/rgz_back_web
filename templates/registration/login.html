@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block styles %}
+
+{% endblock %}
+
+{% block main %}
+    <div class="center-content">
+        <h1> Вход </h1>
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+        <form action="/registration/login" method="post" id="login-form">
+            <div class="formа">
+                <label for="login">Логин:</label>
+                <input type="text" name="login" id="login">
+            </div>
+            <div class="formа">
+                <label for="password">Пароль:</label>
+                <input type="password" name="password" id="password">
+                
+            </div>
+            <div><a href="{{ url_for('registr.register') }}" style="color:rgba(49, 46, 235, 0.719); text-decoration: underline;">Регистрация</a> </div>
+            <button type="submit">Войти</button>
+        </form>
+    </div>
+{% endblock %}

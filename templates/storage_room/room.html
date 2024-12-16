@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block script %}
+<script>
+    function jsonRpcRequest(method, params) {
+        const url = '/api'; 
+        const request = {
+            jsonrpc: '2.0',
+            method: method,
+            params: params,
+            id: Math.random().toString(36).substring(7) // Уникальный идентификатор запроса
+        };
+
+        return fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(request)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                throw new Error(data.error.message);
+            }
+            return data.result;
+        });
+    }
+    function getRoomList() {
+        jsonRpcRequest('get_rooms')
+            .then(data => {
+                const rooms = data.rooms; 
+                const freeCount = data.free; 
+                const occupiedCount = data.occupied; 
+
+                document.getElementById('room-summary').innerHTML = `
+                    Свободных ячеек: ${freeCount} <br> 
+                    Занятых ячеек: ${occupiedCount}
+                `;
+
+                rooms.sort((a, b) => a.number - b.number);
+                const container = document.getElementById('room-grid');
+                container.innerHTML = ''; 
+                for (let i = 0; i < rooms.length; i++) {
+                    const room = rooms[i];
+                    const roomDiv = document.createElement('div');
+                    roomDiv.className = 'room';
+                    if (room.tenant) {
+                        roomDiv.classList.add('occupied'); 
+                    }
+                    roomDiv.innerHTML = `
+                        <div class="room-number">Ячейка ${room.number}</div>
+                        <div class="room-status">${room.tenant || 'Свободна'}</div>
+                    `;
+                    if (!room.tenant) {
+                        const bookingButton = document.createElement('button');
+                        bookingButton.innerText = 'Зарезервировать';
+                        bookingButton.onclick = function() {
+                            booking(room.number); 
+                        };
+                        roomDiv.appendChild(bookingButton);
+                    } else {
+                        const releaseButton = document.createElement('button');
+                        releaseButton.innerText = 'Освободить';
+                        releaseButton.onclick = function() {
+                            release(room.number); 
+                        };
+                        roomDiv.appendChild(releaseButton);
+                    }
+                    container.appendChild(roomDiv);
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка при получении списка комнат:', error);
+                alert('Ошибка: ' + (error.message || 'Неизвестная ошибка'));
+            });
+    }
+
+    function booking(roomNumber) {
+        jsonRpcRequest('book_room', { room_number: roomNumber })
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    getRoomList(); 
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка при бронировании:', error);
+                alert('Ошибка: ' + (error.message || 'Неизвестная ошибка'));
+            });
+    }
+
+    
+    function release(roomNumber) {
+        jsonRpcRequest('release_room', { room_number: roomNumber })
+            .then(data => {
+                if (data.error) {
+                    alert(data.error); 
+                } else {
+                    getRoomList(); 
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка при освобождении:', error);
+                alert('Ошибка: ' + (error.message || 'Неизвестная ошибка'));
+            });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        getRoomList();
+    });
+</script>
+{% endblock %}
+
+{% block styles %}
+
+{% endblock %}
+
+{% block main %}
+<h1>Ячейки</h1>
+<div id="room-summary"></div>
+<div id="room-grid"></div>
+{% endblock %}
