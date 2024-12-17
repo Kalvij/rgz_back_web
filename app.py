@@ -22,7 +22,7 @@ def menu():
     return render_template('registration/menu.html', login=session.get('login'))
 
 # Обработчик JSON-RPC запросов
-@app.route('/json-rpc-api', methods=['POST'])
+@app.route('/api', methods=['POST'])
 def json_rpc_handler():
     try:
         # Получаем данные из запроса

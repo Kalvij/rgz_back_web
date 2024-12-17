@@ -70,36 +70,41 @@ def book_room(room_number):
 
     conn, cur = db_connect()
 
-    # Проверяем, сколько комнат уже забронировано текущим пользователем
-    if current_app.config['DB_TYPE'] == 'postgres':
-        cur.execute("SELECT COUNT(*) as count FROM rooms WHERE tenant = %s", (login,))
-    else:
-        cur.execute("SELECT COUNT(*) as count FROM rooms WHERE tenant = ?", (login,))
+    try:
+        # Проверяем, сколько комнат уже забронировано текущим пользователем
+        if current_app.config['DB_TYPE'] == 'postgres':
+            cur.execute("SELECT COUNT(*) as count FROM rooms WHERE tenant = %s", (login,))
+        else:
+            cur.execute("SELECT COUNT(*) as count FROM rooms WHERE tenant = ?", (login,))
 
-    count = cur.fetchone()['count']
-    if count >= 5:
+        count = cur.fetchone()['count']
+        if count >= 5:
+            db_close(conn, cur)
+            return {'error': 'Вы не можете забронировать больше 5 ячеек'}
+
+        # Проверяем, свободна ли комната
+        if current_app.config['DB_TYPE'] == 'postgres':
+            cur.execute("SELECT tenant FROM rooms WHERE number = %s", (room_number,))
+        else:
+            cur.execute("SELECT tenant FROM rooms WHERE number = ?", (room_number,))
+
+        room = cur.fetchone()
+        if room and room['tenant']:
+            db_close(conn, cur)
+            return {'error': 'Комната уже забронирована'}
+
+        # Бронируем комнату
+        if current_app.config['DB_TYPE'] == 'postgres':
+            cur.execute("UPDATE rooms SET tenant = %s WHERE number = %s", (login, room_number))
+        else:
+            cur.execute("UPDATE rooms SET tenant = ? WHERE number = ?", (login, room_number))
+
         db_close(conn, cur)
-        return {'error': 'Вы не можете забронировать больше 5 ячеек'}
+        return {'result': 'Успешно забронировано'}
 
-    # Проверяем, свободна ли комната
-    if current_app.config['DB_TYPE'] == 'postgres':
-        cur.execute("SELECT tenant FROM rooms WHERE number = %s", (room_number,))
-    else:
-        cur.execute("SELECT tenant FROM rooms WHERE number = ?", (room_number,))
-
-    room = cur.fetchone()
-    if room and room['tenant']:
+    except Exception as e:
         db_close(conn, cur)
-        return {'error': 'Комната уже забронирована'}
-
-    # Бронируем комнату
-    if current_app.config['DB_TYPE'] == 'postgres':
-        cur.execute("UPDATE rooms SET tenant = %s WHERE number = %s", (login, room_number))
-    else:
-        cur.execute("UPDATE rooms SET tenant = ? WHERE number = ?", (login, room_number))
-
-    db_close(conn, cur)
-    return {'result': 'Успешно забронировано'}
+        return {'error': str(e)}
 
 # Функция для отмены бронирования комнаты
 def cancel_room(room_number):
@@ -109,25 +114,30 @@ def cancel_room(room_number):
 
     conn, cur = db_connect()
 
-    # Проверяем, принадлежит ли комната текущему пользователю
-    if current_app.config['DB_TYPE'] == 'postgres':
-        cur.execute("SELECT tenant FROM rooms WHERE number = %s", (room_number,))
-    else:
-        cur.execute("SELECT tenant FROM rooms WHERE number = ?", (room_number,))
+    try:
+        # Проверяем, принадлежит ли комната текущему пользователю
+        if current_app.config['DB_TYPE'] == 'postgres':
+            cur.execute("SELECT tenant FROM rooms WHERE number = %s", (room_number,))
+        else:
+            cur.execute("SELECT tenant FROM rooms WHERE number = ?", (room_number,))
 
-    room = cur.fetchone()
-    if room and room['tenant'] != login:
+        room = cur.fetchone()
+        if room and room['tenant'] != login:
+            db_close(conn, cur)
+            return {'error': 'Вы не можете снять чужую бронь'}
+
+        # Отменяем бронь
+        if current_app.config['DB_TYPE'] == 'postgres':
+            cur.execute("UPDATE rooms SET tenant = NULL WHERE number = %s", (room_number,))
+        else:
+            cur.execute("UPDATE rooms SET tenant = NULL WHERE number = ?", (room_number,))
+
         db_close(conn, cur)
-        return {'error': 'Вы не можете снять чужую бронь'}
+        return {'result': 'Бронирование отменено'}
 
-    # Отменяем бронь
-    if current_app.config['DB_TYPE'] == 'postgres':
-        cur.execute("UPDATE rooms SET tenant = NULL WHERE number = %s", (room_number,))
-    else:
-        cur.execute("UPDATE rooms SET tenant = NULL WHERE number = ?", (room_number,))
-
-    db_close(conn, cur)
-    return {'result': 'Бронирование отменено'}
+    except Exception as e:
+        db_close(conn, cur)
+        return {'error': str(e)}
 
 # Функция для освобождения комнаты
 def release_room(room_number):
@@ -137,22 +147,27 @@ def release_room(room_number):
 
     conn, cur = db_connect()
 
-    # Проверяем, принадлежит ли комната текущему пользователю
-    if current_app.config['DB_TYPE'] == 'postgres':
-        cur.execute("SELECT tenant FROM rooms WHERE number = %s", (room_number,))
-    else:
-        cur.execute("SELECT tenant FROM rooms WHERE number = ?", (room_number,))
+    try:
+        # Проверяем, принадлежит ли комната текущему пользователю
+        if current_app.config['DB_TYPE'] == 'postgres':
+            cur.execute("SELECT tenant FROM rooms WHERE number = %s", (room_number,))
+        else:
+            cur.execute("SELECT tenant FROM rooms WHERE number = ?", (room_number,))
 
-    room = cur.fetchone()
-    if room and room['tenant'] != login:
+        room = cur.fetchone()
+        if room and room['tenant'] != login:
+            db_close(conn, cur)
+            return {'error': 'Вы не можете снять чужую бронь'}
+
+        # Освобождаем комнату
+        if current_app.config['DB_TYPE'] == 'postgres':
+            cur.execute("UPDATE rooms SET tenant = NULL WHERE number = %s", (room_number,))
+        else:
+            cur.execute("UPDATE rooms SET tenant = NULL WHERE number = ?", (room_number,))
+
         db_close(conn, cur)
-        return {'error': 'Вы не можете снять чужую бронь'}
+        return {'result': 'Комната освобождена'}
 
-    # Освобождаем комнату
-    if current_app.config['DB_TYPE'] == 'postgres':
-        cur.execute("UPDATE rooms SET tenant = NULL WHERE number = %s", (room_number,))
-    else:
-        cur.execute("UPDATE rooms SET tenant = NULL WHERE number = ?", (room_number,))
-
-    db_close(conn, cur)
-    return {'result': 'Комната освобождена'}
+    except Exception as e:
+        db_close(conn, cur)
+        return {'error': str(e)}
