@@ -60,21 +60,31 @@ def book_room(room_number):
 
     conn, cur = db_connect()
 
-    cur.execute("SELECT COUNT(*) as count FROM rooms WHERE tenant = %s", (login,))
+    if current_app.config['DB_TYPE'] == 'postgres':
+        cur.execute("SELECT COUNT(*) as count FROM rooms WHERE tenant = %s", (login,))
+    else:
+        cur.execute("SELECT COUNT(*) as count FROM rooms WHERE tenant = ?", (login,))
+
     count = cur.fetchone()['count']
 
     if count >= 5:
         db_close(conn, cur)
         return {'error': 'Вы не можете забронировать больше 5 ячеек'}
 
-    cur.execute("SELECT tenant FROM rooms WHERE number = %s", (room_number,))
+    if current_app.config['DB_TYPE'] == 'postgres':
+        cur.execute("SELECT COUNT(*) as count FROM rooms WHERE tenant = %s", (login,))
+    else:
+        cur.execute("SELECT COUNT(*) as count FROM rooms WHERE tenant = ?", (login,))
     room = cur.fetchone()
 
     if room and room['tenant']:
         db_close(conn, cur)
         return {'error': 'Комната уже забронирована'}
 
-    cur.execute("UPDATE rooms SET tenant = %s WHERE number = %s", (login, room_number))
+    if current_app.config['DB_TYPE'] == 'postgres':
+        cur.execute("SELECT COUNT(*) as count FROM rooms WHERE tenant = %s", (login,))
+    else:
+        cur.execute("SELECT COUNT(*) as count FROM rooms WHERE tenant = ?", (login,))
     db_close(conn, cur)
     return {'result': 'Успешно забронировано'}
 
@@ -85,14 +95,20 @@ def cancel_room(room_number):
 
     conn, cur = db_connect()
 
-    cur.execute("SELECT tenant FROM rooms WHERE number = %s", (room_number,))
+    if current_app.config['DB_TYPE'] == 'postgres':
+        cur.execute("SELECT COUNT(*) as count FROM rooms WHERE tenant = %s", (login,))
+    else:
+        cur.execute("SELECT COUNT(*) as count FROM rooms WHERE tenant = ?", (login,))
     room = cur.fetchone()
 
     if room and room['tenant'] != login:
         db_close(conn, cur)
         return {'error': 'Вы не можете снять чужую бронь'}
 
-    cur.execute("UPDATE rooms SET tenant = NULL WHERE number = %s", (room_number,))
+    if current_app.config['DB_TYPE'] == 'postgres':
+        cur.execute("SELECT COUNT(*) as count FROM rooms WHERE tenant = %s", (login,))
+    else:
+        cur.execute("SELECT COUNT(*) as count FROM rooms WHERE tenant = ?", (login,))
     db_close(conn, cur)
     return {'result': 'Бронирование отменено'}
 
@@ -103,13 +119,19 @@ def release_room(room_number):
 
     conn, cur = db_connect()
 
-    cur.execute("SELECT tenant FROM rooms WHERE number = %s", (room_number,))
+    if current_app.config['DB_TYPE'] == 'postgres':
+        cur.execute("SELECT COUNT(*) as count FROM rooms WHERE tenant = %s", (login,))
+    else:
+        cur.execute("SELECT COUNT(*) as count FROM rooms WHERE tenant = ?", (login,))
     room = cur.fetchone()
 
     if room and room['tenant'] != login:
         db_close(conn, cur)
         return {'error': 'Вы не можете снять чужую бронь'}
 
-    cur.execute("UPDATE rooms SET tenant = NULL WHERE number = %s", (room_number,))
+    if current_app.config['DB_TYPE'] == 'postgres':
+        cur.execute("SELECT COUNT(*) as count FROM rooms WHERE tenant = %s", (login,))
+    else:
+        cur.execute("SELECT COUNT(*) as count FROM rooms WHERE tenant = ?", (login,))
     db_close(conn, cur)
     return {'result': 'Комната освобождена'}
