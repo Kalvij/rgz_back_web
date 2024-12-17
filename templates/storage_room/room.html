@@ -2,8 +2,9 @@
 
 {% block script %}
 <script>
+    // Функция для отправки JSON-RPC запросов
     function jsonRpcRequest(method, params) {
-        const url = '/api'; 
+        const url = '/api'; // URL для отправки запросов
         const request = {
             jsonrpc: '2.0',
             method: method,
@@ -16,57 +17,66 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(request)
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Ошибка HTTP: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
             if (data.error) {
-                throw new Error(data.error.message);
+                throw new Error(data.error.message || 'Неизвестная ошибка');
             }
             return data.result;
         });
     }
+
+    // Функция для получения списка комнат
     function getRoomList() {
         jsonRpcRequest('get_rooms')
             .then(data => {
-                const rooms = data.rooms; 
-                const freeCount = data.free; 
-                const occupiedCount = data.occupied; 
+                const rooms = data.rooms;
+                const freeCount = data.free;
+                const occupiedCount = data.occupied;
 
+                // Обновляем информацию о комнатах
                 document.getElementById('room-summary').innerHTML = `
-                    Свободных ячеек: ${freeCount} <br> 
+                    Свободных ячеек: ${freeCount} <br>
                     Занятых ячеек: ${occupiedCount}
                 `;
 
+                // Сортируем комнаты по номеру
                 rooms.sort((a, b) => a.number - b.number);
+
+                // Генерируем HTML для каждой комнаты
                 const container = document.getElementById('room-grid');
-                container.innerHTML = ''; 
-                for (let i = 0; i < rooms.length; i++) {
-                    const room = rooms[i];
+                container.innerHTML = ''; // Очищаем контейнер
+                rooms.forEach(room => {
                     const roomDiv = document.createElement('div');
                     roomDiv.className = 'room';
                     if (room.tenant) {
-                        roomDiv.classList.add('occupied'); 
+                        roomDiv.classList.add('occupied');
                     }
                     roomDiv.innerHTML = `
                         <div class="room-number">Ячейка ${room.number}</div>
                         <div class="room-status">${room.tenant || 'Свободна'}</div>
                     `;
+
+                    // Добавляем кнопку в зависимости от статуса комнаты
                     if (!room.tenant) {
                         const bookingButton = document.createElement('button');
                         bookingButton.innerText = 'Зарезервировать';
-                        bookingButton.onclick = function() {
-                            booking(room.number); 
-                        };
+                        bookingButton.onclick = () => booking(room.number);
                         roomDiv.appendChild(bookingButton);
                     } else {
                         const releaseButton = document.createElement('button');
                         releaseButton.innerText = 'Освободить';
-                        releaseButton.onclick = function() {
-                            release(room.number); 
-                        };
+                        releaseButton.onclick = () => release(room.number);
                         roomDiv.appendChild(releaseButton);
                     }
+
                     container.appendChild(roomDiv);
-                }
+                });
             })
             .catch(error => {
                 console.error('Ошибка при получении списка комнат:', error);
@@ -74,13 +84,14 @@
             });
     }
 
+    // Функция для бронирования комнаты
     function booking(roomNumber) {
         jsonRpcRequest('book_room', { room_number: roomNumber })
             .then(data => {
                 if (data.error) {
                     alert(data.error);
                 } else {
-                    getRoomList(); 
+                    getRoomList(); // Обновляем список комнат
                 }
             })
             .catch(error => {
@@ -89,14 +100,14 @@
             });
     }
 
-    
+    // Функция для освобождения комнаты
     function release(roomNumber) {
         jsonRpcRequest('release_room', { room_number: roomNumber })
             .then(data => {
                 if (data.error) {
-                    alert(data.error); 
+                    alert(data.error);
                 } else {
-                    getRoomList(); 
+                    getRoomList(); // Обновляем список комнат
                 }
             })
             .catch(error => {
@@ -105,6 +116,7 @@
             });
     }
 
+    // Загружаем список комнат при загрузке страницы
     document.addEventListener('DOMContentLoaded', function() {
         getRoomList();
     });
