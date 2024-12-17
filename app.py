@@ -22,7 +22,7 @@ def menu():
     return render_template('registration/menu.html', login=session.get('login'))
 
 # Обработчик JSON-RPC запросов
-@app.route('/api', methods=['POST'])
+@app.route('/json-rpc-api', methods=['POST'])
 def json_rpc_handler():
     try:
         # Получаем данные из запроса
@@ -96,8 +96,9 @@ def json_rpc_handler():
 
     except Exception as e:
         # Обработка непредвиденных ошибок
+        app.logger.error(f"Ошибка: {str(e)}")
         return jsonify({
             'jsonrpc': '2.0',
-            'error': {'code': -32603, 'message': str(e)},
+            'error': {'code': -32603, 'message': 'Internal error'},
             'id': None
         }), 500
